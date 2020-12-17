@@ -162,8 +162,10 @@ def parse(string: str):
                 localExpression += rawString[counter]
                 
             counter += 1
-        
-        return getResult(rawString)
+        if parseFloat(rawString):
+            return parseFloat(rawString)
+        else:
+            return getResult(rawString)
     except Exception as ex:
         print(ex)
         return None
