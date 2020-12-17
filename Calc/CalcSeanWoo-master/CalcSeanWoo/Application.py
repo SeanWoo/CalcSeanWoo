@@ -22,7 +22,7 @@ class Application:
         self.root.columnconfigure(2, weight=1)   
         self.root.columnconfigure(2, weight=1)   
 
-        self.entry = Entry(self.root, width=80)
+        self.entry = Entry(self.root, width=70)
         self.entry.grid(column=0, row=0, columnspan=6)
 
         self.delete = Button(self.root, text="C", width=15)
