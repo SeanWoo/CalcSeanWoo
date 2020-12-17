@@ -1,11 +1,11 @@
 import re
 from Stack import *
 
-mul = re.compile(r"(.*?)((-?\d*(\.\d+)?)[*](-?\d*(\.\d+)?))")
-div = re.compile(r"(.*?)((-?\d*(\.\d+)?)/(-?\d*(\.\d+)?))")
-add = re.compile(r"(.*?)((-?\d*(\.\d+)?)\+(-?\d*(\.\d+)?))")
-sub = re.compile(r"(.*?)((-?\d*(\.\d+)?)-(-?\d*(\.\d+)?))")
-mod = re.compile(r"(.*?)((-?\d*(\.\d+)?)\^(-?\d*(\.\d+)?))")
+mul = re.compile(r"(.*?)((\d*(\.\d+)?)[*](-?\d*(\.\d+)?))")
+div = re.compile(r"(.*?)((\d*(\.\d+)?)/(-?\d*(\.\d+)?))")
+add = re.compile(r"(.*?)((\d*(\.\d+)?)[+](-?\d*(\.\d+)?))")
+sub = re.compile(r"(.*?)((\d+(\.?\d+)?)\-(\d+(\.?\d+)?))")
+mod = re.compile(r"(.*?)((\d*(\.\d+)?)\^(-?\d*(\.\d+)?))")
 
 def parseFloat(string: str) -> int:
     string = string.replace('−', '-')
@@ -57,8 +57,8 @@ def getResult(string: str):
                 operation = '/'
         else:
             index1 = rawString.find('+') if not rawString.find('+') == -1 else 2147483647
-            index2 = rawString.find('-') if not rawString.find('-') == -1 else 2147483647
-            if index1 < index2:
+            index2 = rawString.find('-', 1) if not rawString.find('-', 1) == -1 else 2147483647
+            if index1 < index2 or (rawString[0] == '-' and not index1 == 2147483647):
                 operation = '+'
             else:
                 operation = '-'
@@ -69,19 +69,24 @@ def getResult(string: str):
             number2 = parseFloat(groups.group(5))
             minus = ""
             result = number1 ** number2
+            #За это спасибо Александру Попенову
             if number1 < 0 and number2 < 0:
                 minus = "-"
-            if number2 < 0:
-                result = 1 / number1 ** (number2 * -1)
-            elif number1 < 0 and number2 % 2 == 0:
+            if number1 < 0 and number2 % 2 == 0:
                 result = -result
-            elif number1 > 0 and number2 % 2 == 1:
-                pass
-                # result = -result
+            #За это спасибо Александру Попенову
+            rawString = re.sub(mod, r"\g<1>" + minus + str(result), rawString, count=1)
+            rawString = re.sub(r"--", "+", rawString)
         elif '*' == operation:
             groups = re.match(mul, rawString)
             number1 = parseFloat(groups.group(3))
             number2 = parseFloat(groups.group(5))
+
+            index = rawString.find(f"{str(number1)}*{str(number2)}")
+            if index == 1 and rawString[0] == '-':
+                number1 = number1 * -1
+                rawString = rawString.replace("-", "", 1)
+
             result = number1 * number2
             rawString = re.sub(mul, r"\g<1>" + str(result), rawString, count=1)
             rawString = re.sub(r"--", "+", rawString)
@@ -89,6 +94,12 @@ def getResult(string: str):
             groups = re.match(div, rawString)
             number1 = parseFloat(groups.group(3))
             number2 = parseFloat(groups.group(5))
+
+            index = rawString.find(f"{str(number1)}/{str(number2)}")
+            if index == 1 and rawString[0] == '-':
+                number1 = number1 * -1
+                rawString = rawString.replace("-", "", 1)
+
             result = number1 / number2
             rawString = re.sub(div, r"\g<1>" + str(result), rawString, count=1)
             rawString = re.sub(r"--", "+", rawString)
@@ -96,6 +107,12 @@ def getResult(string: str):
             groups = re.match(add, rawString)
             number1 = parseFloat(groups.group(3))
             number2 = parseFloat(groups.group(5))
+
+            index = rawString.find(f"{str(number1)}+{str(number2)}")
+            if index == 1 and rawString[0] == '-':
+                number1 = number1 * -1
+                rawString = rawString.replace("-", "", 1)
+
             result = number1 + number2
             rawString = re.sub(add, r"\g<1>" + str(result), rawString, count=1)
             rawString = re.sub(r"--", "+", rawString)
@@ -103,6 +120,12 @@ def getResult(string: str):
             groups = re.match(sub, rawString)
             number1 = parseFloat(groups.group(3))
             number2 = parseFloat(groups.group(5))
+
+            index = rawString.find(f"{str(number1)}-{str(number2)}")
+            if index == 1 and rawString[0] == '-':
+                number1 = number1 * -1
+                rawString = rawString.replace("-", "", 1)
+
             result = number1 - number2
             rawString = re.sub(sub, r"\g<1>" + str(result), rawString, count=1)
             rawString = re.sub(r"--", "+", rawString)
@@ -141,25 +164,11 @@ def parse(string: str):
             counter += 1
         
         return getResult(rawString)
-    except:
+    except Exception as ex:
+        print(ex)
         return None
 
 if __name__ == "__main__":
-    print(str(parse("100-10^-2")) + " 99.99")
-    print(str(parse("100+10^-2")) + " 100.01")
-    print(str(parse("100-10^2")) + " 0.0")
-    print(str(parse("100+10^2")) + " 200.0")
-    print()
-    print(str(parse("100-10^-3")) + " 99.999")
-    print(str(parse("100+10^-3")) + " 100.001")
-    print(str(parse("100-10^3")) + " -900.0")
-    print(str(parse("100+10^3")) + " 1100.0")
-    print()
-    print(str(parse("100-10^-4")) + " 99.9999")
-    print(str(parse("100+10^-4")) + " 100.0001")
-    print(str(parse("100-10^4")) + " -9900.0")
-    print(str(parse("100+10^4")) + " 10100.0")
-
     #print(parse("-5 + 3"))
-    #print(parse("( ( 56   ^   2   +   44 )   ^   2   -   ( 25   ×   2 )   ^   2 )   ÷   2 ="))
-    #print("5054950")
+    print(parse("( ( 56   ^   2   +   44 )   ^   2   -   ( 25   ×   2 )   ^   2 )   ÷   2 ="))
+    print("5054950")
