@@ -4,10 +4,11 @@ from Stack import *
 mul = re.compile(r"(.*?)((-?\d*(\.\d+)?)[*](-?\d*(\.\d+)?))")
 div = re.compile(r"(.*?)((-?\d*(\.\d+)?)/(-?\d*(\.\d+)?))")
 add = re.compile(r"(.*?)((-?\d*(\.\d+)?)\+(-?\d*(\.\d+)?))")
-sub = re.compile(r"(.*?)((-?\d*(\.\d+)?)-(-?\d*(\.\d+)?))")
+sub = re.compile(r"(.*?)((−?\d*(\.\d+)?)-(−?\d*(\.\d+)?))")
 mod = re.compile(r"(.*?)((-?\d*(\.\d+)?)\^(-?\d*(\.\d+)?))")
 
 def parseFloat(string: str) -> int:
+    string = string.replace('−', '-')
     if string.isdigit():
        return int(string)
     else:
@@ -15,6 +16,16 @@ def parseFloat(string: str) -> int:
             return float(string)
         except ValueError:
             return None
+
+def cleaningString(string: str):
+    rawString = string.replace(" ", "")
+    rawString = rawString.replace("\n", "")
+    rawString = rawString.replace("\t", "")
+    rawString = rawString.replace(",", "")
+    rawString = rawString.replace("=", "")
+    rawString = rawString.replace("×", "*")
+    rawString = rawString.replace("÷", "/")
+    return rawString
 
 def validate(string: str):
     stack = Stack()
@@ -30,7 +41,7 @@ def validate(string: str):
 
 
 def getResult(string: str):
-    rawString = string.replace(" ", "")
+    rawString = string
 
     operation = ""
 
@@ -56,9 +67,17 @@ def getResult(string: str):
             groups = re.match(mod, rawString)
             number1 = parseFloat(groups.group(3))
             number2 = parseFloat(groups.group(5))
+            minus = ""
             result = number1 ** number2
-            rawString = re.sub(mod, r"\g<1>" + str(result), rawString, count=1)
-            rawString = re.sub(r"--", "+", rawString)
+            if number1 < 0 and number2 < 0:
+                minus = "-"
+            if number2 < 0:
+                result = 1 / number1 ** (number2 * -1)
+            elif number1 < 0 and number2 % 2 == 0:
+                result = -result
+            elif number1 > 0 and number2 % 2 == 1:
+                pass
+                # result = -result
         elif '*' == operation:
             groups = re.match(mul, rawString)
             number1 = parseFloat(groups.group(3))
@@ -93,11 +112,10 @@ def getResult(string: str):
 
 def parse(string: str):
     try:
-        rawString = string.replace(" ", "")
-        rawString = string.replace(",", ".")
+        rawString = cleaningString(string)
+        
         if not validate(rawString):
             return None
-        stack = Stack()
         
         localExpression = ""
         startIndexExpression = 0
@@ -127,22 +145,21 @@ def parse(string: str):
         return None
 
 if __name__ == "__main__":
-    if parse("(1467*43+2334/2-132*2+900/455+654389-15*10-59+15037)*0+2*6,5") == 13.0: 
-        print("1 test passed")
-    else: 
-        print("Failed")
+    print(str(parse("100-10^-2")) + " 99.99")
+    print(str(parse("100+10^-2")) + " 100.01")
+    print(str(parse("100-10^2")) + " 0.0")
+    print(str(parse("100+10^2")) + " 200.0")
+    print()
+    print(str(parse("100-10^-3")) + " 99.999")
+    print(str(parse("100+10^-3")) + " 100.001")
+    print(str(parse("100-10^3")) + " -900.0")
+    print(str(parse("100+10^3")) + " 1100.0")
+    print()
+    print(str(parse("100-10^-4")) + " 99.9999")
+    print(str(parse("100+10^-4")) + " 100.0001")
+    print(str(parse("100-10^4")) + " -9900.0")
+    print(str(parse("100+10^4")) + " 10100.0")
 
-    if parse("2^2") == 4.0: 
-        print("2 test passed") 
-    else: 
-        print("Failed")
-
-    if parse("2^3") == 8.0: 
-        print("3 test passed") 
-    else: 
-        print("Failed")
-
-    if parse("2*2^3") == 16.0: 
-        print("4 test passed") 
-    else: 
-        print("Failed")
+    #print(parse("-5 + 3"))
+    #print(parse("( ( 56   ^   2   +   44 )   ^   2   -   ( 25   ×   2 )   ^   2 )   ÷   2 ="))
+    #print("5054950")

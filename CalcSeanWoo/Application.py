@@ -77,10 +77,10 @@ class Application:
         self.sub = Button(self.root, text="-", bg='#08F', font=font, width=4, height=2)
         self.sub.grid(column=3, row=3, sticky='news')
 
-        self.mul = Button(self.root, text="*", bg='#08F', font=font, width=4, height=2)
+        self.mul = Button(self.root, text="×", bg='#08F', font=font, width=4, height=2)
         self.mul.grid(column=3, row=4, sticky='news')
 
-        self.div = Button(self.root, text="/", bg='#08F', font=font, width=4, height=2)
+        self.div = Button(self.root, text="÷", bg='#08F', font=font, width=4, height=2)
         self.div.grid(column=3, row=5, sticky='news')
 
         self.answer = Button(self.root, text="=", bg='#08F', font=font, width=4, height=2)
