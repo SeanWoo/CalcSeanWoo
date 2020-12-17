@@ -1,8 +1,10 @@
 import re
 from Stack import *
 
-priority = ['*', '/', '+', '-']
-numbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
+mul = re.compile(r"(.*?)((-?\d*(\.\d+)?)[*](-?\d*(\.\d+)?))")
+div = re.compile(r"(.*?)((-?\d*(\.\d+)?)/(-?\d*(\.\d+)?))")
+add = re.compile(r"(.*?)((-?\d*(\.\d+)?)\+(-?\d*(\.\d+)?))")
+sub = re.compile(r"(.*?)((-?\d*(\.\d+)?)-(-?\d*(\.\d+)?))")
 
 def parseFloat(string: str) -> int:
     if string.isdigit():
@@ -13,15 +15,21 @@ def parseFloat(string: str) -> int:
         except ValueError:
             return None
 
-def parse(string: str):
-    rawString = string.replace(" ", "")
+def validate(string: str):
     stack = Stack()
-    localExpression = ""
     
-    mul = re.compile(r"(.*?)((-?\d*(\.\d+)?)[*](-?\d*(\.\d+)?))")
-    div = re.compile(r"(.*?)((-?\d*(\.\d+)?)/(-?\d*(\.\d+)?))")
-    add = re.compile(r"(.*?)((-?\d*(\.\d+)?)\+(-?\d*(\.\d+)?))")
-    sub = re.compile(r"(.*?)((-?\d*(\.\d+)?)-(-?\d*(\.\d+)?))")
+    for s in string:
+        if s == '(':
+            stack.push('(')
+        elif s == ')':
+            if stack.size == 0:
+                return False
+            stack.pop()
+    return stack.size == 0
+
+
+def getResult(string: str):
+    rawString = string.replace(" ", "")
 
     operation = ""
 
@@ -74,5 +82,38 @@ def parse(string: str):
             break
     return parseFloat(rawString)
 
+def parse(string: str):
+    rawString = string.replace(" ", "")
+    if not validate(rawString):
+        return None
+    stack = Stack()
+    
+    localExpression = ""
+    startIndexExpression = 0
+    endIndexExpression = 0
+    counter = 0
+    while ')' in rawString:
+        if rawString[counter] == '(':
+            stack.push('(')
+            if not localExpression == "":
+                localExpression = ""
+        elif rawString[counter] == ')':
+            stack.pop()
+            if not localExpression == "":
+                endIndexExpression = counter + 1
+                result = getResult(localExpression)
+                rawString = rawString[0:startIndexExpression] + str(result) + rawString[endIndexExpression:len(rawString)]
+                localExpression = ""
+                counter = 0
+                continue
+        else:
+            if localExpression == "":
+                startIndexExpression = counter - 1
+            localExpression += rawString[counter]
+            
+        counter += 1
+    
+    return getResult(rawString)
+
 if __name__ == "__main__":
-    print(parse("2 + 2 / 2 * 2"))
+    print(parse("2 + 2 + (5 + 5))"))
