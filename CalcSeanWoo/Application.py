@@ -1,5 +1,5 @@
 from tkinter import *
-from .Window import Window
+from Window import Window
 
 class Application:
     def __init__(self):

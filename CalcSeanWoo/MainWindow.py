@@ -1,5 +1,5 @@
-from .Application import *
-from .Calculate import parse
+from Application import *
+from Calculate import parse
 
 class MainWindow(Application):
     def __init__(self, **args):
