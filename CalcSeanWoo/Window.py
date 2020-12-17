@@ -14,5 +14,8 @@ class Window(Tk):
         self.height = height
         super().geometry(f"{self.width}x{self.height}")
 
+    def allowResize(self, value):
+        super().resizable(width=value, height=value)
+
     def show(self):
         super().mainloop()

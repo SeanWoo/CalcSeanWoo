@@ -23,25 +23,21 @@ class MainWindow(Application):
         self.tch.configure(command=lambda: self.butt_MouseClick("."))
         self.openBracket.configure(command=lambda: self.butt_MouseClick("("))
         self.closeBracket.configure(command=lambda: self.butt_MouseClick(")"))
+        self.mod.configure(command=lambda: self.butt_MouseClick("^"))
         self.delete.configure(command=self.delete_MouseClick)
         self.answer.configure(command=self.answer_MouseClick)
 
-        self.calulationStr = ""
 
         super().EndInit()
 
     def butt_MouseClick(self, arg):
-        self.entry.delete(0, len(self.calulationStr))
-        self.calulationStr += arg
-        self.entry.insert(0, self.calulationStr)
+        self.entry.insert(len(self.entry.get()), arg)
 
     def delete_MouseClick(self):
-        self.entry.delete(0, len(self.calulationStr))
-        self.calulationStr = self.calulationStr[:-1]
-        self.entry.insert(0, self.calulationStr)
+        self.entry.delete(len(self.entry.get())-1, len(self.entry.get()))
 
     def answer_MouseClick(self):
-        self.entry.delete(0, len(self.calulationStr))
-        self.calulationStr = str(parse(self.calulationStr))
-        self.entry.insert(0, self.calulationStr)
+        result = str(parse(self.entry.get()))
+        self.entry.delete(0, len(self.entry.get()))
+        self.entry.insert(0, result)
 
