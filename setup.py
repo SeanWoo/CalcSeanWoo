@@ -1,9 +1,9 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='CalculateSeanWoo',
+    name='CalcSeanWoo',
     version="1.0",
-    packages=['CalculateSeanWoo'],
+    packages=['CalcSeanWoo'],
     install_requires=[
         'requests'
     ],
