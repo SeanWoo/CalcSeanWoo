@@ -9,7 +9,6 @@ file = tempfile.TemporaryFile()
 file.write(response.content)
 zipArchive = zipfile.ZipFile(file)
 zipArchive.extractall('Calc/')
- 
 zipArchive.close()
 
-os.system("python Calc/CalcSeanWoo-master/CalcSeanWoo/__init__.py")
+os.system("python Calc/CalcSeanWoo-master/CalcSeanWoo/main.py")
