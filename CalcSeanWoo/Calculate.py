@@ -4,7 +4,7 @@ from Stack import *
 mul = re.compile(r"(.*?)((-?\d*(\.\d+)?)[*](-?\d*(\.\d+)?))")
 div = re.compile(r"(.*?)((-?\d*(\.\d+)?)/(-?\d*(\.\d+)?))")
 add = re.compile(r"(.*?)((-?\d*(\.\d+)?)\+(-?\d*(\.\d+)?))")
-sub = re.compile(r"(.*?)((−?\d*(\.\d+)?)-(−?\d*(\.\d+)?))")
+sub = re.compile(r"(.*?)((-?\d*(\.\d+)?)-(-?\d*(\.\d+)?))")
 mod = re.compile(r"(.*?)((-?\d*(\.\d+)?)\^(-?\d*(\.\d+)?))")
 
 def parseFloat(string: str) -> int:
